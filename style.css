@@ -1,15 +1,40 @@
-*{
-    text-decoration: none;
-    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    margin: 0px;
-    padding: 0px;
+@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
 
+body{
+    font-family: 'Raleway', sans-serif;
+    overflow-x: hidden;
+    width: 100vw;
+    
 }
 
+a{
+    text-decoration: none;;
+}
+
+
+nav{
+    display: flex;
+    flex: 1;
+    padding: 15px;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+li{
+    list-style: none;
+}
+.sticky{
+    position: fixed;
+    top: 0;
+}
 
 a{
     color: #000;
     font-size: 1rem;
+    font-size: 16px;
+}
+a:hover{
+    color: #0040ff;
 }
 
 p{
@@ -51,19 +76,22 @@ h1,h2,h3,h4{
 }
 .hero p{
     font-size: 1rem;
-    font-weight: 300;
     padding-bottom: 30px;
 }
 
 button{
-    padding-left: 2rem;
-    padding-right: 2rem;
-    padding: 1rem;
+    background-color: #212534;
     color: white;
-    background: #000;
-    border: 0rem;
-    
+    padding: 10px 25px;
+    border: none;
+    border-radius: 4px;
 }
+
+.btn:hover{
+    background-color: #0037ff;
+    color: white;
+}
+
 .contact{
     padding-left: 2rem;
     padding-right: 2rem;
@@ -88,20 +116,8 @@ header div{
     flex: 1;
 }
 
-nav{
-    display: flex;
-    flex: 1;
-    align-items: center;
-    justify-content: space-evenly;
-}
-
-li{
-    list-style: none;
-}
-
 .second-section{
     vertical-align: middle;
-    padding-bottom: 200px;
     width: 100%;
     justify-content: center;
 }
@@ -109,33 +125,15 @@ li{
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-left: 400px;
-    padding-right: 400px;
 
 }
 
-.heading h2{
-    font-size: 2rem;
-    padding-bottom: 20px;
-    text-align: center;
-}
 .heading p{
     font-size: 1rem;
-    padding-bottom: 20px;
     text-align: center;
 }
 
-.content{
-    padding: 16px;
-}
 
-.sticky{
-    position: fixed;
-    top: 0;
-    width: 100vw;
-    padding-left: 50px;
-    padding-right: 50px;
-}
 
 .cards{
     display: flex;
@@ -144,14 +142,13 @@ li{
     justify-content: space-evenly;
 }
 
-/* .card{
+.card{
     display: flex;
     flex-direction: column;
     width: 300px;
     height: 300px;
-    padding: 50px;
     align-items: center;
-} */
+}
 
 
 .card img{
@@ -168,21 +165,6 @@ li{
 .btn a{
     color: white;
 }
-.button-group .btn{
-    width: 150px;
-}
-
-.btn{
-    width: 300px;
-    margin: 5px;
-    border-radius: 4px;
-    transition-duration: 0.4s;
-}
-
-.btn:hover {
-    background-color: #4d4d4d;
-    color: white;
-  }
 
 .fa{
     padding: 5px;
@@ -270,21 +252,7 @@ input{
     gap: 5rem;
 }
 
-@property --rotate {
-  syntax: "<angle>";
-  initial-value: 132deg;
-  inherits: false;
-}
 
-:root {
-  --card-height: 65vh;
-  --card-width: calc(var(--card-height) / 1.5);
-}
-
-.card img {
-  width:25vw;
-  height:30vh;
-}
 
 body {
   min-height: 100vh;
@@ -313,71 +281,19 @@ body {
   font-size: 1.5em;
   color: rgb(88 199 250 / 0%);
   cursor: pointer;
-  font-family: sans-serif;
   gap:10px;
 }
+
+.card img {
+    width:25vw;
+    height:30vh;
+  }
 
 .card:hover {
   color: white;
   transition: color 1s;
 }
-.card:hover:before, .card:hover:after {
-  animation: none;
-  opacity: 0;
-}
 
-
-.card::before {
-  content: "";
-  width: 104%;
-  height: 102%;
-  border-radius: 2px;
-  background-image: linear-gradient(
-    var(--rotate)
-    , #5ddcff, #3c67e3 43%, #4e00c2);
-    position: absolute;
-    z-index: -1;
-    top: -1%;
-    left: -2%;
-    animation: spin 2.5s linear infinite;
-}
-
-.card::after {
-  position: absolute;
-  content: "";
-  top: calc(var(--card-height) / 6);
-  left: 0;
-  right: 0;
-  z-index: -1;
-  height: 100%;
-  width: 100%;
-  margin: 0 auto;
-  transform: scale(0.8);
-  filter: blur(calc(var(--card-height) / 6));
-  background-image: linear-gradient(
-    var(--rotate)
-    , #5ddcff, #3c67e3 43%, #4e00c2);
-    opacity: 1;
-  transition: opacity .5s;
-  animation: spin 2.5s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    --rotate: 0deg;
-  }
-  100% {
-    --rotate: 360deg;
-  }
-}
-
-a {
-  color: #212534;
-  text-decoration: none;
-  font-family: sans-serif;
-  font-weight: bold;
-  margin-top: 2rem;
-}
 
 select{
     -webkit-appearance: none;
