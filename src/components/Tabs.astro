@@ -11,7 +11,7 @@ const { tabs } = bio;
             if (name === "Blogs") {
                 return <a href="/blog">{name} </a>;
             }
-            return <a href={url} target="_blank">{name} </a>;
+            return <a href={url} target="_blank" rel="noopener noreferrer">{name} </a>;
         })
     }
 </div>
@@ -27,7 +27,6 @@ const { tabs } = bio;
         backdrop-filter: blur(5px);
         border-radius: 100px;
         border: 2px solid rgba(99, 99, 99, 0.5);
-        );
         width: fit-content;
     }
     

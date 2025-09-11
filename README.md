@@ -1,6 +1,6 @@
 Alok Kumar – Portfolio
 
-Welcome to my portfolio repository!I’m Alok Kumar, a Product Designer at FoldHealth with a background in Computer Science and experience shaping user-centric digital products.
+Welcome to my portfolio repository! I’m Alok Kumar, a Product Designer at FoldHealth with a background in Computer Science and experience shaping user-centric digital products.
 
 🚀 About Me
 	•	Product Designer @ FoldHealth (B2B2C, Healthcare IT)
