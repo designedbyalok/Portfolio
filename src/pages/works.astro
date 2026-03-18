@@ -1,0 +1,194 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Tabs from "../components/Tabs.astro";
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('works'))
+  .filter(p => !p.data.draft)
+  .sort((a, b) => parseInt(b.data.year) - parseInt(a.data.year));
+---
+
+<Layout title="Works | Alok Kumar">
+  <main class="works-page">
+    <div class="works-top-nav">
+      <Tabs active="Works" />
+    </div>
+
+    <div class="works-container">
+      <header class="works-header">
+        <h1>Works</h1>
+        <p class="subtitle">Selected projects from my time designing enterprise healthcare products</p>
+      </header>
+
+      <div class="project-list">
+        {projects.map((project) => (
+          <a href={`/works/${project.slug}`} class="project-card">
+            <div class="project-image">
+              <img src={project.data.image} alt={project.data.title} loading="lazy" />
+            </div>
+            <div class="project-info">
+              <div class="project-tags">
+                {project.data.tags.map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+              <h2>{project.data.title}</h2>
+              <p>{project.data.summary}</p>
+              <span class="project-year">{project.data.year}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .works-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .works-top-nav {
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .works-container {
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+  }
+
+  .works-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .works-header h1 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--color-muted);
+    font-size: 1rem;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .project-card {
+    display: block;
+    border-radius: 12px;
+    border: 1px solid var(--color-surface-border);
+    background: transparent;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  .project-card:hover {
+    background: var(--color-surface);
+    border-color: rgba(93, 93, 93, 0.4);
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.04), 0 0 32px rgba(0, 0, 0, 0.02);
+    transform: translateY(-2px);
+  }
+
+  .project-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+
+  .project-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .project-card:hover .project-image img {
+    transform: scale(1.03);
+  }
+
+  .project-info {
+    padding: 1.5rem 1.75rem 1.75rem;
+  }
+
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .tag {
+    background: rgba(161, 77, 243, 0.12);
+    color: #c49dff;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.2rem 0.65rem;
+    border-radius: 100px;
+    letter-spacing: 0.02em;
+  }
+
+  .project-info h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 0.6rem;
+    line-height: 1.35;
+  }
+
+  .project-info p {
+    font-size: 0.95rem;
+    color: var(--color-muted);
+    margin: 0 0 0.75rem;
+    line-height: 1.6;
+  }
+
+  .project-year {
+    font-size: 0.8rem;
+    color: var(--color-dull);
+    font-weight: 500;
+  }
+
+  @media (max-width: 600px) {
+    .works-container {
+      padding: 1.5rem 1rem 2rem;
+    }
+    .works-header h1 {
+      font-size: 1.75rem;
+    }
+    .works-header {
+      margin-bottom: 2rem;
+    }
+    .project-list {
+      gap: 2rem;
+    }
+    .project-info {
+      padding: 1.25rem 1.25rem 1.5rem;
+    }
+    .project-info h2 {
+      font-size: 1.15rem;
+    }
+    .works-top-nav {
+      padding-top: 1rem;
+    }
+  }
+</style>

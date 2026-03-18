@@ -5,41 +5,36 @@ const { socials } = bio;
 <footer>
   <div class="footer-socials">
     {socials.filter(social => social.name !== "Peerlist").map((social) => (
-      <a href={social.url} target="_blank" rel="noopener noreferrer">
-        <img src={social.icon} alt={social.alt} />
+      <a href={social.url} target="_blank" rel="noopener noreferrer" aria-label={social.name}>
+        <img src={social.icon} alt={social.alt} width="22" height="22" />
       </a>
     ))}
   </div>
 </footer>
 <style>
 footer {
-  padding: 1.2rem 0 0.5rem 0;
+  padding: 1.5rem 1rem;
   margin-top: auto;
   width: 100%;
-  text-align: center;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  cursor: default;
-  background: none;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  flex-shrink: 0;
 }
 .footer-socials {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1.2rem;
-  margin-bottom: 0.5rem;
+  gap: 1.5rem;
 }
 .footer-socials a img {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   filter: brightness(0) invert(1);
-  transition: transform 0.2s;
+  opacity: 0.5;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 .footer-socials a:hover img {
-  transform: scale(1.13);
+  transform: scale(1.15);
+  opacity: 0.9;
 }
 </style>

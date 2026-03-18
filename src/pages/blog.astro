@@ -1,299 +1,333 @@
 ---
-import Footer from "../components/Footer.astro";
+import Layout from "../layouts/Layout.astro";
+import Tabs from "../components/Tabs.astro";
+import { getCollection } from 'astro:content';
 
-const blogs = [
-  {
-    title: "Simplify Enterprise UX cautiously",
-    slug: "simplify-enterprise-ux-cautiously",
-    summary: "When it comes to simplifying the user experience (UX), businesses need to approach the process with mindfulness and...",
-    date: "Mar 9, 2023",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    title: "How Enterprise UX is different from Consumer UX?",
-    slug: "how-enterprise-ux-is-different-from-consumer-ux",
-    summary: "Enterprise applications are typically designed to be very process and business-rule-heavy. They require a lot of flexibility and...",
-    date: "Mar 6, 2023",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
-  },
-];
-
-let search = '';
-let filteredBlogs = blogs;
-if (typeof window !== 'undefined') {
-  search = (window as any).__blogSearch || '';
-  filteredBlogs = blogs.filter(blog =>
-    blog.title.toLowerCase().includes(search.toLowerCase()) ||
-    blog.summary.toLowerCase().includes(search.toLowerCase())
-  );
-}
+const posts = (await getCollection('blog'))
+  .filter(post => !post.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 ---
 
-<html lang="en">
-  <head>
-    <title>Blog</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script>
-      window.addEventListener('DOMContentLoaded', function() {
-        const input = document.querySelector('.search-bar input') as HTMLInputElement | null;
-        const clearBtn = document.querySelector('.search-bar .clear-btn') as HTMLElement | null;
-        function update() {
-          (window as any).__blogSearch = input && input.value;
-          document.querySelector('form')?.submit();
-        }
-        if (input && clearBtn) {
-          input.addEventListener('input', function() {
-            clearBtn.style.display = input.value ? 'block' : 'none';
-            update();
-          });
-          clearBtn.addEventListener('click', function() {
-            input.value = '';
-            clearBtn.style.display = 'none';
-            update();
-          });
-          clearBtn.style.display = input.value ? 'block' : 'none';
-        }
-      });
-    </script>
-  </head>
-  <body style="min-height: 100vh; display: flex; flex-direction: column;">
-    <div class="blog-container" style="flex: 1 0 auto;">
-      <div class="tab-breadcrumb">
-        <a href="/" class="tab">Home</a>
-        <span class="tab-divider">/</span>
-        <span class="tab active">Blogs</span>
+<Layout title="Blog | Alok Kumar">
+  <main class="blog-page">
+    <div class="blog-top-nav">
+      <Tabs active="Blogs" />
+    </div>
+
+    <div class="blog-container">
+      <header class="blog-header" transition:name="hero" transition:animate="fade">
+        <h1>Blog</h1>
+        <p class="subtitle">Thoughts on design, enterprise UX, and building better products</p>
+      </header>
+
+      <div class="search-bar" id="search-bar">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search posts..." id="search-input" autocomplete="off" />
+        <button class="clear-btn" id="clear-btn" aria-label="Clear search">&times;</button>
       </div>
-      <div class="blog-header">
-        <h1><span class="emoji">📝</span> <span>Blog</span></h1>
-        <p class="subtitle">A collection of articles written by me on various<br />topics of interest</p>
-      </div>
-      <form class="search-bar" onsubmit="return false;">
-        <svg width="22" height="22" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Search posts, tags.." value={search} />
-        <span class="clear-btn" style="display:none;cursor:pointer;font-size:1.3rem;margin-left:-2.2rem;user-select:none;">&#10005;</span>
-      </form>
-      <div class="blog-listing">
-        {filteredBlogs.length === 0 ? (
-          <div class="no-results">No blogs found.</div>
-        ) : (
-          filteredBlogs.map((blog) => (
-            <a href={`/blog/${blog.slug}`} class="blog-link">
-              <div class="blog-card">
-                <div class="blog-content">
-                  <h2>{blog.title}</h2>
-                  <p>{blog.summary}</p>
-                  <div class="blog-meta">
-                    <span>{blog.date}</span>
-                  </div>
-                </div>
-                <div class="blog-image">
-                  <img src={blog.image} alt={blog.title} />
-                </div>
+
+      <div class="blog-listing" id="blog-listing">
+        {posts.map((post) => (
+          <a href={`/blog/${post.slug}`} class="blog-card" data-title={post.data.title.toLowerCase()} data-summary={post.data.summary.toLowerCase()} data-tags={post.data.tags.join(' ').toLowerCase()}>
+            <div class="card-content">
+              <div class="card-tags">
+                {post.data.tags.slice(0, 3).map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
               </div>
-            </a>
-          ))
-        )}
+              <h2>{post.data.title}</h2>
+              <p>{post.data.summary}</p>
+              <div class="card-meta">
+                <span>{post.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                {post.data.readTime && (
+                  <>
+                    <span class="dot">&middot;</span>
+                    <span>{post.data.readTime}</span>
+                  </>
+                )}
+              </div>
+            </div>
+            <div class="card-arrow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </div>
+          </a>
+        ))}
+        <div class="no-results" id="no-results" style="display:none;">No posts found.</div>
       </div>
     </div>
-    <Footer />
-  </body>
-</html>
+  </main>
+
+<script is:inline>
+  function initSearch() {
+    var input = document.getElementById('search-input');
+    var clearBtn = document.getElementById('clear-btn');
+    var listing = document.getElementById('blog-listing');
+    var noResults = document.getElementById('no-results');
+    var searchBar = document.getElementById('search-bar');
+
+    if (!input || !clearBtn || !listing || !noResults || !searchBar) return;
+
+    function filter() {
+      var q = input.value.toLowerCase().trim();
+      clearBtn.style.display = q ? 'flex' : 'none';
+      searchBar.classList.toggle('has-value', !!q);
+
+      var cards = listing.querySelectorAll('.blog-card');
+      var visible = 0;
+      cards.forEach(function(card) {
+        var title = card.dataset.title || '';
+        var summary = card.dataset.summary || '';
+        var tags = card.dataset.tags || '';
+        var match = !q || title.includes(q) || summary.includes(q) || tags.includes(q);
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      noResults.style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    input.addEventListener('input', filter);
+    clearBtn.addEventListener('click', function() {
+      input.value = '';
+      filter();
+      input.focus();
+    });
+
+    input.addEventListener('focus', function() { searchBar.classList.add('focused'); });
+    input.addEventListener('blur', function() { searchBar.classList.remove('focused'); });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSearch);
+  } else {
+    initSearch();
+  }
+  document.addEventListener('astro:page-load', initSearch);
+</script>
+</Layout>
 
 <style>
-body {
-  background: var(--astro-gradient);
-  margin: 0;
-  --astro-gradient: linear-gradient(107.56deg, #010101 0%, #131313 47.92%, #000000 100%);
-  font-family: 'Roobert', Arial, sans-serif;
-  color: #e3e3e3;
-}
-.blog-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem 1rem 0 1rem;
-  min-height: 100vh;
-}
-.tab-breadcrumb {
-  display: flex;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5px);
-  border-radius: 100px;
-  padding: .5rem .5rem;
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-  margin-left: auto;
-  margin-right: auto;
-  gap: 0.7rem;
-  width: fit-content;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  border: 1px solid #5d5d5d3c;
-}
-.tab {
-  padding: 0.3rem 1.1rem;
-  text-decoration: none;
-  color: #aeb6c3;
-  font-weight: 500;
-  border: 2px solid transparent;
-  border-radius: 100px;
-  transition: 0.34s;
-  background: transparent;
-  font-size: 1.1rem;
-}
-.tab:hover, .tab.active {
-  background: linear-gradient(
-    123.29deg,
-    rgba(81, 81, 81, 0.28) 23.34%,
-    rgba(250, 250, 250, 0.18) 78.64%
-  );
-  border-color: #afbac7;
-  box-shadow: 2px 10px 30px rgba(216, 216, 216, 0.15);
-  color: #fff;
-}
-.tab-divider {
-  color: #aeb6c3;
-  font-size: 1.2rem;
-  font-weight: 400;
-  padding: 0 0.3rem;
-}
-.blog-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-.blog-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 0.7rem 0;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-.blog-header .emoji {
-  font-size: 1.5rem;
-}
-.subtitle {
-  color: #aeb6c3;
-  font-size: 1.05rem;
-  font-weight: 400;
-  margin: 0 auto 0 auto;
-  max-width: 500px;
-}
-.search-bar {
-  display: flex;
-  align-items: center;
-  background: #232325;
-  border-radius: 1.2rem;
-  padding: 0.3rem 1rem;
-  margin: 1.5rem auto 1.5rem auto;
-  max-width: 500px;
-  box-sizing: border-box;
-  border: 1.5px solid #35363a;
-  position: relative;
-}
-.search-bar svg {
-  margin-right: 0.7rem;
-  width: 22px;
-  height: 22px;
-}
-.search-bar input {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: #e3e3e3;
-  font-size: 1rem;
-  width: 100%;
-  padding: 0.3rem 0;
-}
-.search-bar .clear-btn {
-  position: absolute;
-  right: 1.2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #aaa;
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: none;
-}
-.blog-listing {
-  margin-top: 1.5rem;
-}
-.blog-link {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-}
-.blog-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #4a4a4a;
-  padding: 1.2rem 1.2rem;
-  gap: 1.2rem;
-  margin-bottom: 1.2rem;
-  transition: background 0.3s, border-radius 0.3s, border 0.3s;
-}
-.blog-card:hover {
-  background: #232325;
-  border-radius: 1.2rem;
-  border: 1px solid #4a4a4a;
-  cursor: pointer;
-}
-.blog-content {
-  flex: 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.blog-content h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin: 0 0 0.7rem 0;
-  color: #fff;
-}
-.blog-content p {
-  font-size: 1rem;
-  color: #aeb6c3;
-  margin: 0 0 1.2rem 0;
-  max-width: 90%;
-}
-.blog-meta {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 0.95rem;
-  color: #aeb6c3;
-}
-.blog-image {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.blog-image img {
-  width: 140px;
-  height: 90px;
-  object-fit: cover;
-  border-radius: 0.7rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-}
-.no-results {
-  text-align: center;
-  color: #aeb6c3;
-  font-size: 1.1rem;
-  margin-top: 2rem;
-}
-@media (max-width: 800px) {
-  .blog-card {
+  .blog-page {
+    flex: 1;
+    display: flex;
     flex-direction: column;
-    gap: 1rem;
   }
-  .blog-image img {
+
+  .blog-top-nav {
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .blog-container {
+    max-width: 720px;
     width: 100%;
-    height: 120px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
   }
-}
-</style> 
+
+  .blog-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .blog-header h1 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--color-muted);
+    font-size: 1rem;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Search bar */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background: var(--color-surface);
+    border-radius: 100px;
+    padding: 0.55rem 1rem;
+    margin-bottom: 2rem;
+    border: 1.5px solid var(--color-surface-border);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--color-muted);
+    gap: 0.6rem;
+  }
+
+  .search-bar.focused,
+  .search-bar.has-value {
+    background: linear-gradient(
+      123.29deg,
+      rgba(81, 81, 81, 0.28) 23.34%,
+      rgba(250, 250, 250, 0.18) 78.64%
+    );
+    border-color: rgba(175, 186, 199, 0.6);
+    box-shadow: 0 4px 20px rgba(216, 216, 216, 0.08);
+    color: #fff;
+  }
+
+  .search-bar svg {
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+
+  .search-bar.focused svg,
+  .search-bar.has-value svg {
+    opacity: 1;
+  }
+
+  .search-bar input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e3e3e3;
+    font-size: 0.95rem;
+    font-family: inherit;
+    width: 100%;
+    padding: 0.15rem 0;
+  }
+
+  .search-bar input::placeholder {
+    color: var(--color-dull);
+  }
+
+  .clear-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--color-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 0.2rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.2s;
+  }
+
+  .clear-btn:hover {
+    color: #fff;
+  }
+
+  /* Blog cards */
+  .blog-listing {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .blog-card {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    border: 1px solid transparent;
+    background: transparent;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .blog-card:hover {
+    background: var(--color-surface);
+    border-color: var(--color-surface-border);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .blog-card:hover .card-arrow {
+    opacity: 1;
+    transform: translate(2px, -2px);
+  }
+
+  .card-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .tag {
+    background: rgba(161, 77, 243, 0.12);
+    color: #c49dff;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.2rem 0.65rem;
+    border-radius: 100px;
+    letter-spacing: 0.02em;
+  }
+
+  .card-content h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 0.45rem;
+    line-height: 1.4;
+  }
+
+  .card-content p {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    margin: 0 0 0.65rem;
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--color-dull);
+  }
+
+  .dot {
+    font-size: 0.6rem;
+  }
+
+  .card-arrow {
+    flex-shrink: 0;
+    opacity: 0;
+    color: var(--color-muted);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    padding-top: 0.2rem;
+  }
+
+  .no-results {
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 1rem;
+    padding: 3rem 0;
+  }
+
+  @media (max-width: 600px) {
+    .blog-container {
+      padding: 1.5rem 1rem 2rem;
+    }
+    .blog-header h1 {
+      font-size: 1.75rem;
+    }
+    .card-content h2 {
+      font-size: 1.05rem;
+    }
+    .blog-top-nav {
+      padding-top: 1rem;
+    }
+  }
+</style>

@@ -46,7 +46,7 @@ export const bio = {
     },
     {
       name: "Works",
-      url: "https://bento.me/designedbyalok",
+      url: "/works",
     },
     {
       name: "Resume",
