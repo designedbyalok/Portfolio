@@ -74,7 +74,7 @@ const projects = (await getCollection('works'))
   .works-header h1 {
     font-size: 2.25rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--color-white);
     margin: 0 0 0.5rem;
   }
 
@@ -138,8 +138,8 @@ const projects = (await getCollection('works'))
   }
 
   .tag {
-    background: rgba(161, 77, 243, 0.12);
-    color: #c49dff;
+    background: var(--tag-bg);
+    color: var(--tag-color);
     font-size: 0.75rem;
     font-weight: 500;
     padding: 0.2rem 0.65rem;
@@ -150,7 +150,7 @@ const projects = (await getCollection('works'))
   .project-info h2 {
     font-size: 1.35rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--color-white);
     margin: 0 0 0.6rem;
     line-height: 1.35;
   }

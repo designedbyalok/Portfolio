@@ -7,7 +7,7 @@ import { bio } from "../bio";
 
 <Layout title="Alok Kumar | Product Designer" bodyClass="home" hideFooter>
 	<main>
-		<div class="center-content" transition:name="hero" transition:animate="fade">
+		<div class="center-content">
 			<Card />
 		</div>
 		<div class="bottom-content">
@@ -71,7 +71,7 @@ import { bio } from "../bio";
 	.social-icons a img {
 		width: 24px;
 		height: 24px;
-		filter: brightness(0) invert(1);
+		filter: var(--icon-invert);
 		transition: transform 0.2s ease, opacity 0.2s ease;
 		opacity: 0.7;
 	}

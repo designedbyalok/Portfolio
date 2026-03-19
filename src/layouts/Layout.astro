@@ -1,5 +1,6 @@
 ---
 import Footer from "../components/Footer.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
 import { ViewTransitions } from 'astro:transitions';
 
 export interface Props {
@@ -27,11 +28,41 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<meta name="description" content="Alok Kumar – Product Designer at FoldHealth, Pune. Simplifying Digital HealthCare for all end-users." />
+		<script is:inline>
+		(function(){
+			var t = localStorage.getItem('theme');
+			if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+			document.documentElement.dataset.theme = t;
+
+			if (!window.__themeSwapBound) {
+				window.__themeSwapBound = true;
+
+				function applyTheme() {
+					var th = localStorage.getItem('theme');
+					if (!th) th = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+					document.documentElement.dataset.theme = th;
+				}
+
+				// Astro 2.x fires "astro:beforeload" after DOM swap (NOT astro:after-swap)
+				document.addEventListener('astro:beforeload', applyTheme);
+				// Astro 2.x fires "astro:load" after scripts re-execute
+				document.addEventListener('astro:load', applyTheme);
+
+				// OS preference change
+				window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(e) {
+					if (!localStorage.getItem('theme')) {
+						document.documentElement.dataset.theme = e.matches ? 'light' : 'dark';
+					}
+				});
+			}
+		})();
+		</script>
 		<ViewTransitions />
 	</head>
 	<body class={bodyClass}>
 		<slot />
 		{!hideFooter && <Footer />}
+		<ThemeToggle />
 	</body>
 </html>
 <style is:global>
@@ -40,6 +71,7 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 		--font-size-lg: clamp(1.25rem, 0.62vw + 1.1rem, 1.5rem);
 		--font-size-xl: clamp(2.25rem, 3vw + 1.5rem, 4rem);
 
+		/* Colors — dark mode defaults */
 		--color-text: #c4c4c4;
 		--color-bg: #121212;
 		--color-border: hsl(17, 24%, 90%);
@@ -50,6 +82,58 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 		--color-surface: rgba(35, 35, 37, 0.6);
 		--color-surface-border: rgba(93, 93, 93, 0.24);
 		--color-muted: #aeb6c3;
+
+		/* Extended theme tokens */
+		--bg-gradient: linear-gradient(107.56deg, #010101 0%, #131313 47.92%, #000000 100%);
+		--heading-gradient: linear-gradient(261.26deg, #636363 3.96%, #ffffffc9 50.9%, #939393 97.85%);
+		--icon-invert: brightness(0) invert(1);
+		--nav-bg: rgba(0, 0, 0, 0.15);
+		--nav-active-bg: linear-gradient(123.29deg, rgba(81, 81, 81, 0.28) 23.34%, rgba(250, 250, 250, 0.18) 78.64%);
+		--nav-active-border: rgba(175, 186, 199, 0.6);
+		--nav-active-shadow: 0 4px 20px rgba(216, 216, 216, 0.1);
+		--tag-bg: rgba(161, 77, 243, 0.12);
+		--tag-color: #c49dff;
+		--link-color: #c49dff;
+		--link-hover: #d4b3ff;
+		--card-link-hover: #83b1fc;
+		--code-bg: rgba(255, 255, 255, 0.06);
+		--pre-bg: rgba(0, 0, 0, 0.3);
+		--selection-bg: rgba(161, 77, 243, 0.3);
+		--selection-color: #fff;
+		--card-shadow: 10px 10px 100px 50px rgba(148, 148, 148, 0.15);
+		--card-hover-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+	}
+
+	[data-theme="light"] {
+		--color-text: #374151;
+		--color-bg: #ffffff;
+		--color-border: hsl(17, 24%, 85%);
+		--color-white: #111827;
+		--color-dull: #6b7280;
+		--color-purple: #7c3aed;
+		--color-grey: rgba(107, 114, 128, 0.4);
+		--color-surface: rgba(243, 244, 246, 0.8);
+		--color-surface-border: rgba(209, 213, 219, 0.5);
+		--color-muted: #4b5563;
+
+		--bg-gradient: linear-gradient(107.56deg, #f9fafb 0%, #ffffff 47.92%, #f3f4f6 100%);
+		--heading-gradient: linear-gradient(261.26deg, #9ca3af 3.96%, #111827cc 50.9%, #6b7280 97.85%);
+		--icon-invert: brightness(0);
+		--nav-bg: rgba(255, 255, 255, 0.6);
+		--nav-active-bg: linear-gradient(123.29deg, rgba(200, 200, 200, 0.35) 23.34%, rgba(255, 255, 255, 0.5) 78.64%);
+		--nav-active-border: rgba(156, 163, 175, 0.5);
+		--nav-active-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+		--tag-bg: rgba(124, 58, 237, 0.08);
+		--tag-color: #7c3aed;
+		--link-color: #7c3aed;
+		--link-hover: #6d28d9;
+		--card-link-hover: #2563eb;
+		--code-bg: rgba(0, 0, 0, 0.04);
+		--pre-bg: rgba(243, 244, 246, 1);
+		--selection-bg: rgba(124, 58, 237, 0.15);
+		--selection-color: #111827;
+		--card-shadow: 10px 10px 80px 40px rgba(0, 0, 0, 0.06);
+		--card-hover-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 	}
 
 	*,
@@ -117,9 +201,10 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 	html {
 		font-family: "Roobert", system-ui, sans-serif;
 		font-size: 16px;
-		background: linear-gradient(107.56deg, #010101 0%, #131313 47.92%, #000000 100%);
+		background: var(--bg-gradient);
 		color: var(--color-text);
 		scroll-behavior: smooth;
+		transition: background 0.3s ease, color 0.3s ease;
 	}
 
 	body {
@@ -144,8 +229,14 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 
 	a { color: inherit; text-decoration: none; }
 
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		overflow: visible;
+		height: auto;
+	}
+
 	::selection {
-		background: rgba(161, 77, 243, 0.3);
-		color: #fff;
+		background: var(--selection-bg);
+		color: var(--selection-color);
 	}
 </style>
