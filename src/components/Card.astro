@@ -64,7 +64,7 @@ const { name, image, alt, designation, company, description } = bio;
 		width: 10rem;
 		height: 10rem;
 		border-radius: 50%;
-		box-shadow: 10px 10px 100px 50px rgba(148, 148, 148, 0.15);
+		box-shadow: var(--card-shadow);
 	}
 
 	h2, h1 {
@@ -73,7 +73,7 @@ const { name, image, alt, designation, company, description } = bio;
 
 	h1 {
 		font-weight: 800;
-		background: linear-gradient(261.26deg, #636363 3.96%, #ffffffc9 50.9%, #939393 97.85%);
+		background: var(--heading-gradient);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-clip: text;
@@ -100,13 +100,13 @@ const { name, image, alt, designation, company, description } = bio;
 
 	a {
 		font-weight: 600;
-		color: #ffffff;
+		color: var(--color-white);
 		text-decoration: none;
 		transition: color 0.2s;
 	}
 
 	a:hover {
-		color: #83b1fc;
+		color: var(--card-link-hover);
 		text-decoration: underline;
 	}
 

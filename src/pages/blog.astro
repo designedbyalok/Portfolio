@@ -15,7 +15,7 @@ const posts = (await getCollection('blog'))
     </div>
 
     <div class="blog-container">
-      <header class="blog-header" transition:name="hero" transition:animate="fade">
+      <header class="blog-header">
         <h1>Blog</h1>
         <p class="subtitle">Thoughts on design, enterprise UX, and building better products</p>
       </header>
@@ -135,7 +135,7 @@ const posts = (await getCollection('blog'))
   .blog-header h1 {
     font-size: 2.25rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--color-white);
     margin: 0 0 0.5rem;
   }
 
@@ -162,14 +162,10 @@ const posts = (await getCollection('blog'))
 
   .search-bar.focused,
   .search-bar.has-value {
-    background: linear-gradient(
-      123.29deg,
-      rgba(81, 81, 81, 0.28) 23.34%,
-      rgba(250, 250, 250, 0.18) 78.64%
-    );
-    border-color: rgba(175, 186, 199, 0.6);
-    box-shadow: 0 4px 20px rgba(216, 216, 216, 0.08);
-    color: #fff;
+    background: var(--nav-active-bg);
+    border-color: var(--nav-active-border);
+    box-shadow: var(--nav-active-shadow);
+    color: var(--color-white);
   }
 
   .search-bar svg {
@@ -186,7 +182,7 @@ const posts = (await getCollection('blog'))
     background: transparent;
     border: none;
     outline: none;
-    color: #e3e3e3;
+    color: var(--color-text);
     font-size: 0.95rem;
     font-family: inherit;
     width: 100%;
@@ -213,7 +209,7 @@ const posts = (await getCollection('blog'))
   }
 
   .clear-btn:hover {
-    color: #fff;
+    color: var(--color-white);
   }
 
   /* Blog cards */
@@ -240,7 +236,7 @@ const posts = (await getCollection('blog'))
   .blog-card:hover {
     background: var(--color-surface);
     border-color: var(--color-surface-border);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--card-hover-shadow);
   }
 
   .blog-card:hover .card-arrow {
@@ -261,8 +257,8 @@ const posts = (await getCollection('blog'))
   }
 
   .tag {
-    background: rgba(161, 77, 243, 0.12);
-    color: #c49dff;
+    background: var(--tag-bg);
+    color: var(--tag-color);
     font-size: 0.75rem;
     font-weight: 500;
     padding: 0.2rem 0.65rem;
@@ -273,7 +269,7 @@ const posts = (await getCollection('blog'))
   .card-content h2 {
     font-size: 1.15rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--color-white);
     margin: 0 0 0.45rem;
     line-height: 1.4;
   }

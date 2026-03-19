@@ -69,7 +69,7 @@ const { title, summary, image, tags, year, role, client } = project.data;
   .breadcrumb {
     display: flex;
     align-items: center;
-    background: rgba(0, 0, 0, 0.15);
+    background: var(--nav-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: 100px;
@@ -96,23 +96,15 @@ const { title, summary, image, tags, year, role, client } = project.data;
   }
 
   .crumb:hover:not(.current) {
-    background: linear-gradient(
-      123.29deg,
-      rgba(81, 81, 81, 0.28) 23.34%,
-      rgba(250, 250, 250, 0.18) 78.64%
-    );
-    border-color: rgba(175, 186, 199, 0.6);
-    color: #fff;
+    background: var(--nav-active-bg);
+    border-color: var(--nav-active-border);
+    color: var(--color-white);
   }
 
   .crumb.current {
-    background: linear-gradient(
-      123.29deg,
-      rgba(81, 81, 81, 0.28) 23.34%,
-      rgba(250, 250, 250, 0.18) 78.64%
-    );
-    border-color: rgba(175, 186, 199, 0.6);
-    color: #fff;
+    background: var(--nav-active-bg);
+    border-color: var(--nav-active-border);
+    color: var(--color-white);
     max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -142,8 +134,8 @@ const { title, summary, image, tags, year, role, client } = project.data;
   }
 
   .tag {
-    background: rgba(161, 77, 243, 0.12);
-    color: #c49dff;
+    background: var(--tag-bg);
+    color: var(--tag-color);
     font-size: 0.75rem;
     font-weight: 500;
     padding: 0.2rem 0.65rem;
@@ -153,7 +145,7 @@ const { title, summary, image, tags, year, role, client } = project.data;
   .project-header h1 {
     font-size: clamp(1.75rem, 4vw, 2.75rem);
     font-weight: 800;
-    color: #fff;
+    color: var(--color-white);
     margin: 0 0 0.75rem;
     line-height: 1.2;
   }
@@ -203,14 +195,14 @@ const { title, summary, image, tags, year, role, client } = project.data;
   .content :global(h2) {
     font-size: 1.4rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--color-white);
     margin: 2.5rem 0 0.75rem;
   }
 
   .content :global(h3) {
     font-size: 1.15rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-white);
     margin: 1.75rem 0 0.5rem;
   }
 
@@ -228,18 +220,18 @@ const { title, summary, image, tags, year, role, client } = project.data;
   }
 
   .content :global(strong) {
-    color: #fff;
+    color: var(--color-white);
     font-weight: 600;
   }
 
   .content :global(a) {
-    color: #c49dff;
+    color: var(--link-color);
     text-decoration: underline;
     text-underline-offset: 2px;
   }
 
   .content :global(a:hover) {
-    color: #d4b3ff;
+    color: var(--link-hover);
   }
 
   .content :global(blockquote) {
@@ -251,7 +243,7 @@ const { title, summary, image, tags, year, role, client } = project.data;
   }
 
   .content :global(code) {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--code-bg);
     padding: 0.15rem 0.4rem;
     border-radius: 0.25rem;
     font-size: 0.9em;
