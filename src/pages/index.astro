@@ -5,9 +5,9 @@ import Layout from "../layouts/Layout.astro";
 import { bio } from "../bio";
 ---
 
-<Layout title="Alok Kumar | Product Designer" >
+<Layout title="Alok Kumar | Product Designer" bodyClass="home" hideFooter>
 	<main>
-		<div class="center-content">
+		<div class="center-content" transition:name="hero" transition:animate="fade">
 			<Card />
 		</div>
 		<div class="bottom-content">
@@ -15,7 +15,7 @@ import { bio } from "../bio";
 			<div class="social-icons">
 				{bio.socials.filter(social => social.name !== "Peerlist").map((social) => (
 					<a href={social.url} target="_blank" rel="noopener noreferrer">
-						<img src={social.icon} alt={social.alt} />
+						<img src={social.icon} alt={social.alt} width="28" height="28" />
 					</a>
 				))}
 			</div>
@@ -24,21 +24,12 @@ import { bio } from "../bio";
 </Layout>
 
 <style>
-	:root {
-		--astro-gradient: linear-gradient(45deg, #4f39fa, #da62c4);
-	}
-	@media (max-width: 600px) {
-		.album-art {
-			width: 32px;
-			height: 32px;
-			margin-right: 0.4rem;
-		}
-	}
 	main {
 		display: flex;
 		flex-direction: column;
-		height: 100vh;
-		width: 100vw;
+		min-height: 100vh;
+		min-height: 100dvh;
+		width: 100%;
 	}
 	.center-content {
 		flex: 1;
@@ -50,25 +41,42 @@ import { bio } from "../bio";
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 1.5rem;
-		margin-bottom: 1.5rem;
+		gap: 1rem;
+		padding-bottom: 1.25rem;
+	}
+	@media (max-width: 576px) {
+		main {
+			min-height: 100vh;
+			min-height: 100dvh;
+			justify-content: center;
+			padding: 2rem 0 0;
+		}
+		.center-content {
+			flex: none;
+		}
+		.bottom-content {
+			gap: 0.75rem;
+			padding: 1rem 0 1.5rem;
+		}
+		.social-icons {
+			gap: 1.5rem;
+		}
 	}
 	.social-icons {
 		display: flex;
 		gap: 2rem;
 		justify-content: center;
 		align-items: center;
-		margin-top: 1rem;
 	}
 	.social-icons a img {
-		width: 28px;
-		height: 28px;
+		width: 24px;
+		height: 24px;
 		filter: brightness(0) invert(1);
-		transition: transform 0.2s;
+		transition: transform 0.2s ease, opacity 0.2s ease;
+		opacity: 0.7;
 	}
 	.social-icons a:hover img {
-		transform: scale(1.1);
+		transform: scale(1.15);
+		opacity: 1;
 	}
 </style>
-
-

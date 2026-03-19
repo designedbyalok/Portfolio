@@ -1,44 +1,44 @@
 ---
 import Footer from "../components/Footer.astro";
+import { ViewTransitions } from 'astro:transitions';
 
 export interface Props {
 	title: string;
+	bodyClass?: string;
+	hideFooter?: boolean;
 }
 
-const { title } = Astro.props as Props;
+const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 ---
 
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<!-- Google tag (gtag.js) -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=G-G8GQQ6WLVG"></script>
 		<script>
 		window.dataLayer = window.dataLayer || [];
 		function gtag(){dataLayer.push(arguments);}
 		gtag('js', new Date());
-
 		gtag('config', 'G-G8GQQ6WLVG');
 		</script>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<meta name="description" content="Alok Kumar – Product Designer at FoldHealth, Pune. Simplifying Digital HealthCare for all end-users." />
+		<ViewTransitions />
 	</head>
-        <body>
-                <slot />
-                <Footer />
-        </body>
+	<body class={bodyClass}>
+		<slot />
+		{!hideFooter && <Footer />}
+	</body>
 </html>
 <style is:global>
 	:root {
-		--font-size-base: clamp(1.25rem, -1vw + 2rem, 1.75rem);
-		--font-size-lg: clamp(1.5rem, 0.62vw + 1.5rem, 2.25rem);
-		/*--font-size-lg: 2.25rem;*/
-		--font-size-xl: clamp(3.5rem, 1.65vw + 3rem, 5rem);
-		/*--font-size-xl: 5rem;*/
+		--font-size-base: clamp(1rem, 0.5vw + 0.875rem, 1.125rem);
+		--font-size-lg: clamp(1.25rem, 0.62vw + 1.1rem, 1.5rem);
+		--font-size-xl: clamp(2.25rem, 3vw + 1.5rem, 4rem);
 
 		--color-text: #c4c4c4;
 		--color-bg: #121212;
@@ -47,6 +47,9 @@ const { title } = Astro.props as Props;
 		--color-dull: #888888;
 		--color-purple: #a14df3;
 		--color-grey: rgba(156, 156, 156, 0.6);
+		--color-surface: rgba(35, 35, 37, 0.6);
+		--color-surface-border: rgba(93, 93, 93, 0.24);
+		--color-muted: #aeb6c3;
 	}
 
 	*,
@@ -59,177 +62,90 @@ const { title } = Astro.props as Props;
 
 	@font-face {
     font-family: 'Roobert';
-    src: url('new_font/Roobert-LightItalic.woff2') format('woff2'),
-        url('new_font/Roobert-LightItalic.woff') format('woff');
-    font-weight: 300;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Roobert';
-    src: url('new_font/Roobert-Medium.woff2') format('woff2'),
-        url('new_font/Roobert-Medium.woff') format('woff');
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Roobert';
-    src: url('new_font/Roobert-SemiBold.woff2') format('woff2'),
-        url('new_font/Roobert-SemiBold.woff') format('woff');
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Roobert';
-    src: url('new_font/Roobert-Regular.woff2') format('woff2'),
-        url('new_font/Roobert-Regular.woff') format('woff');
+    src: url('/new_font/Roobert-Regular.woff2') format('woff2'),
+        url('/new_font/Roobert-Regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
-}
+	}
 
-@font-face {
+	@font-face {
     font-family: 'Roobert';
-    src: url('new_font/Roobert-SemiBoldItalic.woff2') format('woff2'),
-        url('new_font/Roobert-SemiBoldItalic.woff') format('woff');
-    font-weight: 600;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Roobert';
-    src: url('new_font/Roobert-RegularItalic.woff2') format('woff2'),
-        url('new_font/Roobert-RegularItalic.woff') format('woff');
-    font-weight: normal;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Roobert';
-    src: url('new_font/Roobert-MediumItalic.woff2') format('woff2'),
-        url('new_font/Roobert-MediumItalic.woff') format('woff');
+    src: url('/new_font/Roobert-Medium.woff2') format('woff2'),
+        url('/new_font/Roobert-Medium.woff') format('woff');
     font-weight: 500;
-    font-style: italic;
+    font-style: normal;
     font-display: swap;
-}
+	}
 
-@font-face {
+	@font-face {
     font-family: 'Roobert';
-    src: url('new_font/Roobert-Light.woff2') format('woff2'),
-        url('new_font/Roobert-Light.woff') format('woff');
+    src: url('/new_font/Roobert-SemiBold.woff2') format('woff2'),
+        url('/new_font/Roobert-SemiBold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+	}
+
+	@font-face {
+    font-family: 'Roobert';
+    src: url('/new_font/Roobert-Bold.woff2') format('woff2'),
+        url('/new_font/Roobert-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+	}
+
+	@font-face {
+    font-family: 'Roobert';
+    src: url('/new_font/Roobert-Heavy.woff2') format('woff2'),
+        url('/new_font/Roobert-Heavy.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+	}
+
+	@font-face {
+    font-family: 'Roobert';
+    src: url('/new_font/Roobert-Light.woff2') format('woff2'),
+        url('/new_font/Roobert-Light.woff') format('woff');
     font-weight: 300;
     font-style: normal;
     font-display: swap;
-}
-
-@font-face {
-    font-family: 'Roobert';
-    src: url('new_font/Roobert-Heavy.woff2') format('woff2'),
-        url('new_font/Roobert-Heavy.woff') format('woff');
-    font-weight: 900;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Roobert';
-    src: url('new_font/Roobert-HeavyItalic.woff2') format('woff2'),
-        url('new_font/Roobert-HeavyItalic.woff') format('woff');
-    font-weight: 900;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Roobert';
-    src: url('new_font/Roobert-BoldItalic.woff2') format('woff2'),
-        url('new_font/Roobert-BoldItalic.woff') format('woff');
-    font-weight: bold;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Roobert';
-    src: url('new_font/Roobert-Bold.woff2') format('woff2'),
-        url('new_font/Roobert-Bold.woff') format('woff');
-    font-weight: bold;
-    font-style: normal;
-    font-display: swap;
-}
-
-
-
-	html,
-	body {
-		height: 100vh;
-		width: 100vw;
-		overflow: hidden;
 	}
 
 	html {
-		font-family: "Roobert", sans-serif;
-		/* font-size: 10px; */
-		font-size: 10px;
-		background: linear-gradient(
-			107.56deg,
-			#010101 0%,
-			#131313 47.92%,
-			#000000 100%
-		);
+		font-family: "Roobert", system-ui, sans-serif;
+		font-size: 16px;
+		background: linear-gradient(107.56deg, #010101 0%, #131313 47.92%, #000000 100%);
 		color: var(--color-text);
-	}
-
-	@media screen and (min-width: 576px) {
-		html {
-			/* font-size: 12px; */
-			font-size: 12px;
-		}
-	}
-
-	@media screen and (min-width: 700px) {
-		html {
-			/* font-size: 14px; */
-			font-size: 14px;
-		}
-	}
-
-	@media screen and (min-width: 992px) {
-		html {
-			/* font-size: 16px; */
-			font-size: 16px;
-		}
+		scroll-behavior: smooth;
 	}
 
 	body {
 		margin: 0;
-		/*background-image: url("./background-sm.svg");*/
-		background-position: center;
-		background-repeat: no-repeat;
-		background-size: cover;
 		font-size: var(--font-size-base);
-		display: grid;
-		grid-auto-rows: 1fr auto;
+		min-height: 100vh;
+		min-height: 100dvh;
+		display: flex;
+		flex-direction: column;
 	}
 
-	@media screen and (min-width: 576px) {
-		body {
-			/*background-image: url("./background-lg.svg");*/
+	@media (min-width: 577px) {
+		body.home {
+			height: 100vh;
+			height: 100dvh;
+			overflow: hidden;
 		}
 	}
 
-	h1 {
-		font-size: var(--font-size-xl);
-	}
+	h1 { font-size: var(--font-size-xl); }
+	h2 { font-size: var(--font-size-lg); }
 
-	h2 {
-		font-size: var(--font-size-lg);
+	a { color: inherit; text-decoration: none; }
+
+	::selection {
+		background: rgba(161, 77, 243, 0.3);
+		color: #fff;
 	}
 </style>

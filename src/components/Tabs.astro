@@ -2,59 +2,79 @@
 import { bio } from "../bio";
 
 const { tabs } = bio;
+const { active = '' } = Astro.props;
 ---
 
-<div>
+<nav class="tabs-nav" transition:name="tabs" transition:animate="morph">
+    {active && <a href="/" class="home-link" aria-label="Home"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></a>}
     {
         tabs.map((tab) => {
             const { url, name } = tab;
+            const isActive = name === active;
             if (name === "Blogs") {
-                return <a href="/blog">{name} </a>;
+                return <a href="/blog" class:list={[{ active: isActive }]}>{name}</a>;
             }
-            return <a href={url} target="_blank" rel="noopener noreferrer">{name} </a>;
+            if (name === "Works") {
+                return <a href="/works" class:list={[{ active: isActive }]}>{name}</a>;
+            }
+            return <a href={url} target="_blank" class:list={[{ active: isActive }]}>{name}</a>;
         })
     }
-</div>
+</nav>
 <style>
-    div {
+    .tabs-nav {
         display: flex;
         justify-content: center;
         align-items: center;
-        border: 2px solid;
-        padding: 0.5rem 0.5rem;
-        gap: 1rem;
-        background: rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(5px);
+        padding: 0.35rem 0.35rem;
+        gap: 0.5rem;
+        background: rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         border-radius: 100px;
-        border: 2px solid rgba(99, 99, 99, 0.5);
+        border: 1px solid var(--color-surface-border);
         width: fit-content;
     }
-    
-    @media screen and (max-width: 576px) {
-        div {
-            gap: 0;
-            justify-content: space-evenly;
-        }
-    }
 
-    div a {
-        padding: 0.5rem 1rem;
+    .tabs-nav a {
+        padding: 0.45rem 1.1rem;
         text-decoration: none;
         color: var(--color-dull);
         font-weight: 500;
-        border: 2px solid transparent;
+        font-size: 0.95rem;
+        border: 1.5px solid transparent;
         border-radius: 100px;
-        transition: 0.34s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        white-space: nowrap;
     }
 
-    div a:hover {
+    .tabs-nav .home-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.45rem 0.7rem;
+    }
+
+    .tabs-nav a:hover,
+    .tabs-nav a.active {
         background: linear-gradient(
             123.29deg,
             rgba(81, 81, 81, 0.28) 23.34%,
-            rgba(250, 250, 250, 0.38) 78.64%
+            rgba(250, 250, 250, 0.18) 78.64%
         );
-        border-color: #afbac7;
-        box-shadow: 2px 10px 30px rgba(216, 216, 216, 0.25);
-        color: var(--color-white)
+        border-color: rgba(175, 186, 199, 0.6);
+        box-shadow: 0 4px 20px rgba(216, 216, 216, 0.1);
+        color: var(--color-white);
+    }
+
+    @media screen and (max-width: 576px) {
+        .tabs-nav {
+            gap: 0.15rem;
+            padding: 0.3rem;
+        }
+        .tabs-nav a {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.85rem;
+        }
     }
 </style>

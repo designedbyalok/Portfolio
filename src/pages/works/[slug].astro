@@ -3,42 +3,51 @@ import Layout from "../../layouts/Layout.astro";
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  return posts.map(post => ({
-    params: { slug: post.slug },
-    props: { post },
+  const projects = await getCollection('works');
+  return projects.map(project => ({
+    params: { slug: project.slug },
+    props: { project },
   }));
 }
 
-const { post } = Astro.props;
-const { Content } = await post.render();
-const { title, author, date, readTime, tags } = post.data;
+const { project } = Astro.props;
+const { Content } = await project.render();
+const { title, summary, image, tags, year, role, client } = project.data;
 ---
 
 <Layout title={`${title} | Alok Kumar`}>
-  <main class="article-page">
+  <main class="project-page">
     <nav class="breadcrumb">
       <a href="/" class="crumb">Home</a>
       <span class="divider">/</span>
-      <a href="/blog" class="crumb">Blog</a>
+      <a href="/works" class="crumb">Works</a>
       <span class="divider">/</span>
       <span class="crumb current">{title}</span>
     </nav>
 
-    <article class="blog-article">
-      <header>
-        <div class="article-tags">
+    <article class="project-article">
+      <header class="project-header">
+        <div class="header-tags">
           {tags.map((tag: string) => <span class="tag">{tag}</span>)}
         </div>
         <h1>{title}</h1>
+        <p class="summary">{summary}</p>
         <div class="meta">
-          <span>{author}</span>
+          {role && <span class="meta-item">{role}</span>}
+          {client && (
+            <>
+              <span class="dot">&middot;</span>
+              <span class="meta-item">{client}</span>
+            </>
+          )}
           <span class="dot">&middot;</span>
-          <span>{readTime}</span>
-          <span class="dot">&middot;</span>
-          <span>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          <span class="meta-item">{year}</span>
         </div>
       </header>
+
+      <div class="hero-image">
+        <img src={image} alt={title} />
+      </div>
 
       <div class="content">
         <Content />
@@ -48,7 +57,7 @@ const { title, author, date, readTime, tags } = post.data;
 </Layout>
 
 <style>
-  .article-page {
+  .project-page {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -56,6 +65,7 @@ const { title, author, date, readTime, tags } = post.data;
     padding: 1.5rem 1.25rem 3rem;
   }
 
+  /* Breadcrumb — same pattern as blog detail */
   .breadcrumb {
     display: flex;
     align-items: center;
@@ -68,7 +78,7 @@ const { title, author, date, readTime, tags } = post.data;
     gap: 0.4rem;
     width: fit-content;
     border: 1px solid var(--color-surface-border);
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
     position: sticky;
     top: 1rem;
     z-index: 50;
@@ -114,16 +124,17 @@ const { title, author, date, readTime, tags } = post.data;
     padding: 0 0.1rem;
   }
 
-  .blog-article {
-    max-width: 680px;
+  /* Article */
+  .project-article {
+    max-width: 720px;
     width: 100%;
   }
 
-  .blog-article header {
+  .project-header {
     margin-bottom: 2rem;
   }
 
-  .article-tags {
+  .header-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
@@ -139,12 +150,19 @@ const { title, author, date, readTime, tags } = post.data;
     border-radius: 100px;
   }
 
-  .blog-article h1 {
-    font-size: clamp(1.75rem, 3vw, 2.5rem);
+  .project-header h1 {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
     font-weight: 800;
     color: #fff;
+    margin: 0 0 0.75rem;
+    line-height: 1.2;
+  }
+
+  .summary {
+    font-size: 1.1rem;
+    color: var(--color-muted);
+    line-height: 1.6;
     margin: 0 0 1rem;
-    line-height: 1.25;
   }
 
   .meta {
@@ -152,7 +170,7 @@ const { title, author, date, readTime, tags } = post.data;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem;
-    color: var(--color-muted);
+    color: var(--color-dull);
     font-size: 0.9rem;
   }
 
@@ -160,28 +178,58 @@ const { title, author, date, readTime, tags } = post.data;
     font-size: 0.6rem;
   }
 
+  /* Hero image */
+  .hero-image {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-image img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  /* Markdown content */
   .content {
     color: var(--color-text);
     font-size: 1.05rem;
     line-height: 1.8;
   }
 
-  .content :global(p) {
-    margin-bottom: 1.5rem;
-  }
-
   .content :global(h2) {
     font-size: 1.4rem;
     font-weight: 700;
     color: #fff;
-    margin: 2rem 0 0.75rem;
+    margin: 2.5rem 0 0.75rem;
   }
 
   .content :global(h3) {
     font-size: 1.15rem;
     font-weight: 600;
     color: #fff;
-    margin: 1.5rem 0 0.5rem;
+    margin: 1.75rem 0 0.5rem;
+  }
+
+  .content :global(p) {
+    margin-bottom: 1.25rem;
+  }
+
+  .content :global(ul), .content :global(ol) {
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .content :global(li) {
+    margin-bottom: 0.4rem;
+  }
+
+  .content :global(strong) {
+    color: #fff;
+    font-weight: 600;
   }
 
   .content :global(a) {
@@ -192,15 +240,6 @@ const { title, author, date, readTime, tags } = post.data;
 
   .content :global(a:hover) {
     color: #d4b3ff;
-  }
-
-  .content :global(ul), .content :global(ol) {
-    padding-left: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .content :global(li) {
-    margin-bottom: 0.4rem;
   }
 
   .content :global(blockquote) {
@@ -218,15 +257,6 @@ const { title, author, date, readTime, tags } = post.data;
     font-size: 0.9em;
   }
 
-  .content :global(pre) {
-    background: rgba(0, 0, 0, 0.3);
-    padding: 1rem;
-    border-radius: 0.75rem;
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
-    border: 1px solid var(--color-surface-border);
-  }
-
   .content :global(img) {
     max-width: 100%;
     border-radius: 0.75rem;
@@ -234,7 +264,7 @@ const { title, author, date, readTime, tags } = post.data;
   }
 
   @media (max-width: 600px) {
-    .article-page {
+    .project-page {
       padding: 1rem 1rem 2rem;
     }
     .breadcrumb {
@@ -248,8 +278,15 @@ const { title, author, date, readTime, tags } = post.data;
     .crumb.current {
       max-width: 130px;
     }
+    .summary {
+      font-size: 1rem;
+    }
     .content {
       font-size: 1rem;
+    }
+    .hero-image {
+      border-radius: 8px;
+      margin-bottom: 2rem;
     }
   }
 </style>
