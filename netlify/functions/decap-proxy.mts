@@ -3,11 +3,24 @@ import matter from "gray-matter";
 
 const ALLOWED_TABLES = ["blog_posts", "works"];
 
+function getEnv(name: string): string | undefined {
+  // Netlify Functions v2: try Netlify.env first, fall back to process.env
+  try {
+    // @ts-ignore — Netlify global available at runtime
+    return globalThis.Netlify?.env?.get(name) || process.env[name];
+  } catch {
+    return process.env[name];
+  }
+}
+
 function getSupabase() {
-  const url = process.env.SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = getEnv("SUPABASE_URL") || getEnv("PUBLIC_SUPABASE_URL");
+  const key = getEnv("SUPABASE_SERVICE_ROLE_KEY");
   if (!url || !key) {
-    throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars");
+    const missing = [];
+    if (!url) missing.push("SUPABASE_URL");
+    if (!key) missing.push("SUPABASE_SERVICE_ROLE_KEY");
+    throw new Error(`Missing env vars: ${missing.join(", ")}. Check Netlify Dashboard > Site settings > Environment variables. Ensure scope includes "Functions".`);
   }
   return createClient(url, key);
 }
