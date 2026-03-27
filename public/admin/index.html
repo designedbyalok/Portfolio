@@ -1,16 +1,11 @@
----
-// Decap CMS admin page — standalone, no Astro layout
----
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Content Manager</title>
-  </head>
-  <body>
-    <script is:inline src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-    <script is:inline>
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <script>
       CMS.init({
         config: {
           backend: {
@@ -69,5 +64,6 @@
         }
       });
     </script>
-  </body>
+  </head>
+  <body></body>
 </html>
