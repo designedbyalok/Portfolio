@@ -157,6 +157,38 @@ async function handleDeleteFiles(params: { paths: string[] }) {
   await triggerRebuild();
 }
 
+async function handlePersistMedia(params: {
+  asset: { path: string; content: string; encoding: string };
+}) {
+  const { asset } = params;
+  const supabase = getSupabase();
+
+  // Decode the base64 content
+  const buffer = Buffer.from(asset.content, asset.encoding as BufferEncoding);
+  const fileName = asset.path.replace(/^\/?(public\/)?uploads\//, "");
+  const storagePath = `uploads/${fileName}`;
+
+  // Upload to Supabase Storage (bucket: "media")
+  const { error } = await supabase.storage
+    .from("media")
+    .upload(storagePath, buffer, { upsert: true });
+
+  if (error) throw error;
+
+  // Get the public URL
+  const { data: urlData } = supabase.storage
+    .from("media")
+    .getPublicUrl(storagePath);
+
+  return {
+    id: storagePath,
+    name: fileName,
+    size: buffer.length,
+    path: `/uploads/${fileName}`,
+    url: urlData.publicUrl,
+  };
+}
+
 export default async function handler(request: Request) {
   // Only accept POST
   if (request.method !== "POST") {
@@ -195,7 +227,7 @@ export default async function handler(request: Request) {
         result = { id: "", content: "", encoding: "raw", path: "", name: "" };
         break;
       case "persistMedia":
-        result = { url: "" };
+        result = await handlePersistMedia(params);
         break;
       default:
         return new Response(
