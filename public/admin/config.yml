@@ -1,0 +1,48 @@
+backend:
+  name: proxy
+  proxy_url: /.netlify/functions/decap-proxy
+  branch: main
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: "blog_posts"
+    label: "Blog Posts"
+    folder: "blog_posts"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "slug"
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "Slug", name: "slug", widget: "string" }
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Summary", name: "summary", widget: "text" }
+      - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Author", name: "author", widget: "string", default: "Alok Kumar" }
+      - { label: "Read Time", name: "read_time", widget: "string", required: false }
+      - { label: "Tags", name: "tags", widget: "list", default: [] }
+      - { label: "Image", name: "image", widget: "string", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "works"
+    label: "Works"
+    folder: "works"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "slug"
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "Slug", name: "slug", widget: "string" }
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Summary", name: "summary", widget: "text" }
+      - { label: "Image URL", name: "image", widget: "string" }
+      - { label: "Tags", name: "tags", widget: "list", default: [] }
+      - { label: "Year", name: "year", widget: "string" }
+      - { label: "Role", name: "role", widget: "string", required: false }
+      - { label: "Client", name: "client", widget: "string", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
