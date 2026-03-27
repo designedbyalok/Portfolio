@@ -1,18 +1,19 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { getCollection } from 'astro:content';
+import { getBlogPosts, getBlogPost } from '../../lib/db';
+import { marked } from 'marked';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
+  const posts = await getBlogPosts();
   return posts.map(post => ({
     params: { slug: post.slug },
-    props: { post },
   }));
 }
 
-const { post } = Astro.props;
-const { Content } = await post.render();
-const { title, author, date, readTime, tags } = post.data;
+const { slug } = Astro.params;
+const post = await getBlogPost(slug!);
+const { title, author, date, read_time, tags, content } = post;
+const renderedContent = marked(content);
 ---
 
 <Layout title={`${title} | Alok Kumar`}>
@@ -34,15 +35,13 @@ const { title, author, date, readTime, tags } = post.data;
         <div class="meta">
           <span>{author}</span>
           <span class="dot">&middot;</span>
-          <span>{readTime}</span>
+          <span>{read_time}</span>
           <span class="dot">&middot;</span>
-          <span>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          <span>{new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
         </div>
       </header>
 
-      <div class="content">
-        <Content />
-      </div>
+      <div class="content" set:html={renderedContent} />
     </article>
   </main>
 </Layout>

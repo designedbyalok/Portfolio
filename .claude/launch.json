@@ -5,7 +5,7 @@
       "name": "Astro Dev",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 3000
+      "port": 3001
     },
     {
       "name": "Astro Preview",

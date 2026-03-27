@@ -1,11 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Tabs from "../components/Tabs.astro";
-import { getCollection } from 'astro:content';
+import { getBlogPosts } from '../lib/db';
 
-const posts = (await getCollection('blog'))
-  .filter(post => !post.data.draft)
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const posts = await getBlogPosts();
 ---
 
 <Layout title="Blog | Alok Kumar">
@@ -28,21 +26,21 @@ const posts = (await getCollection('blog'))
 
       <div class="blog-listing" id="blog-listing">
         {posts.map((post) => (
-          <a href={`/blog/${post.slug}`} class="blog-card" data-title={post.data.title.toLowerCase()} data-summary={post.data.summary.toLowerCase()} data-tags={post.data.tags.join(' ').toLowerCase()}>
+          <a href={`/blog/${post.slug}`} class="blog-card" data-title={post.title.toLowerCase()} data-summary={post.summary.toLowerCase()} data-tags={post.tags.join(' ').toLowerCase()}>
             <div class="card-content">
               <div class="card-tags">
-                {post.data.tags.slice(0, 3).map((tag) => (
+                {post.tags.slice(0, 3).map((tag) => (
                   <span class="tag">{tag}</span>
                 ))}
               </div>
-              <h2>{post.data.title}</h2>
-              <p>{post.data.summary}</p>
+              <h2>{post.title}</h2>
+              <p>{post.summary}</p>
               <div class="card-meta">
-                <span>{post.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                {post.data.readTime && (
+                <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                {post.read_time && (
                   <>
                     <span class="dot">&middot;</span>
-                    <span>{post.data.readTime}</span>
+                    <span>{post.read_time}</span>
                   </>
                 )}
               </div>

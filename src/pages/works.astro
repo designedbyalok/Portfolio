@@ -1,11 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Tabs from "../components/Tabs.astro";
-import { getCollection } from 'astro:content';
+import { getWorks } from '../lib/db';
 
-const projects = (await getCollection('works'))
-  .filter(p => !p.data.draft)
-  .sort((a, b) => parseInt(b.data.year) - parseInt(a.data.year));
+const projects = await getWorks();
 ---
 
 <Layout title="Works | Alok Kumar">
@@ -24,17 +22,17 @@ const projects = (await getCollection('works'))
         {projects.map((project) => (
           <a href={`/works/${project.slug}`} class="project-card">
             <div class="project-image">
-              <img src={project.data.image} alt={project.data.title} loading="lazy" />
+              <img src={project.image} alt={project.title} loading="lazy" />
             </div>
             <div class="project-info">
               <div class="project-tags">
-                {project.data.tags.map((tag) => (
+                {project.tags.map((tag) => (
                   <span class="tag">{tag}</span>
                 ))}
               </div>
-              <h2>{project.data.title}</h2>
-              <p>{project.data.summary}</p>
-              <span class="project-year">{project.data.year}</span>
+              <h2>{project.title}</h2>
+              <p>{project.summary}</p>
+              <span class="project-year">{project.year}</span>
             </div>
           </a>
         ))}
