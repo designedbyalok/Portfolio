@@ -1,18 +1,19 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { getCollection } from 'astro:content';
+import { getWorks, getWork } from '../../lib/db';
+import { marked } from 'marked';
 
 export async function getStaticPaths() {
-  const projects = await getCollection('works');
+  const projects = await getWorks();
   return projects.map(project => ({
     params: { slug: project.slug },
-    props: { project },
   }));
 }
 
-const { project } = Astro.props;
-const { Content } = await project.render();
-const { title, summary, image, tags, year, role, client } = project.data;
+const { slug } = Astro.params;
+const project = await getWork(slug!);
+const { title, summary, image, tags, year, role, client, content } = project;
+const renderedContent = marked(content);
 ---
 
 <Layout title={`${title} | Alok Kumar`}>
@@ -49,9 +50,7 @@ const { title, summary, image, tags, year, role, client } = project.data;
         <img src={image} alt={title} />
       </div>
 
-      <div class="content">
-        <Content />
-      </div>
+      <div class="content" set:html={renderedContent} />
     </article>
   </main>
 </Layout>
