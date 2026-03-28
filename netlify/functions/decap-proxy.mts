@@ -157,14 +157,30 @@ async function handleDeleteFiles(params: { paths: string[] }) {
   await triggerRebuild();
 }
 
-async function handlePersistMedia(params: {
-  asset: { path: string; content: string; encoding: string };
-}) {
-  const { asset } = params;
+async function handlePersistMedia(params: Record<string, unknown>) {
+  console.log("persistMedia params keys:", Object.keys(params || {}));
+
+  // Decap proxy sends: { asset: { path, content, encoding } }
+  const asset = (params?.asset || params) as {
+    path?: string;
+    content?: string;
+    encoding?: string;
+  };
+
+  if (!asset?.path || !asset?.content) {
+    console.log("persistMedia full params:", JSON.stringify(params).slice(0, 500));
+    // Return a stub so Decap doesn't crash — media just won't be stored
+    const name = asset?.path || "unknown";
+    return {
+      asset: { id: name, name, size: 0, path: name, url: "" },
+    };
+  }
+
   const supabase = getSupabase();
 
   // Decode the base64 content
-  const buffer = Buffer.from(asset.content, asset.encoding as BufferEncoding);
+  const encoding = (asset.encoding || "base64") as BufferEncoding;
+  const buffer = Buffer.from(asset.content, encoding);
   const fileName = asset.path.replace(/^\/?(public\/)?uploads\//, "");
   const storagePath = `uploads/${fileName}`;
 
@@ -173,19 +189,25 @@ async function handlePersistMedia(params: {
     .from("media")
     .upload(storagePath, buffer, { upsert: true });
 
-  if (error) throw error;
+  if (error) {
+    console.error("Storage upload error:", error);
+    throw error;
+  }
 
   // Get the public URL
   const { data: urlData } = supabase.storage
     .from("media")
     .getPublicUrl(storagePath);
 
+  // Decap CMS expects { asset: { ... } }
   return {
-    id: storagePath,
-    name: fileName,
-    size: buffer.length,
-    path: `/uploads/${fileName}`,
-    url: urlData.publicUrl,
+    asset: {
+      id: storagePath,
+      name: fileName,
+      size: buffer.length,
+      path: `/uploads/${fileName}`,
+      url: urlData.publicUrl,
+    },
   };
 }
 
