@@ -1,16 +1,15 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import matter from "gray-matter";
 
 const ALLOWED_TABLES = ["blog_posts", "works"];
 
-function getSupabase() {
-  const url =
-    process.env.SUPABASE_URL ||
-    process.env.PUBLIC_SUPABASE_URL;
+let _supabase: SupabaseClient | null = null;
 
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.service_role;
+function getSupabase(): SupabaseClient {
+  if (_supabase) return _supabase;
+
+  const url = process.env.SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.service_role;
 
   if (!url || !key) {
     const missing = [];
@@ -18,31 +17,39 @@ function getSupabase() {
     if (!key) missing.push("SUPABASE_SERVICE_ROLE_KEY");
     throw new Error(`Missing env vars: ${missing.join(", ")}`);
   }
-  return createClient(url, key);
+
+  _supabase = createClient(url, key);
+  return _supabase;
 }
 
 function parsePathInfo(path: string): { table: string; slug: string } {
-  // Path format: "blog_posts/my-slug.md"
   const parts = path.split("/");
   const table = parts[0];
   const slug = parts[parts.length - 1].replace(/\.md$/, "");
   return { table, slug };
 }
 
-function rowToFrontmatter(row: Record<string, unknown>, table: string): string {
-  const { id, content, created_at, ...fields } = row as Record<string, unknown>;
-  // Serialize fields as YAML frontmatter + markdown body
+function rowToFileData(
+  row: Record<string, unknown>,
+  table: string
+): { file: { path: string; label: string }; data: string } {
+  const { id, content, created_at, ...fields } = row;
   const frontmatterData: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(fields)) {
     frontmatterData[key] = value;
   }
-  return matter.stringify(String(content || ""), frontmatterData);
+  return {
+    file: {
+      path: `${table}/${row.slug}.md`,
+      label: String(row.title || row.slug),
+    },
+    data: matter.stringify(String(content || ""), frontmatterData),
+  };
 }
 
 function frontmatterToRow(raw: string): Record<string, unknown> {
   const { data, content } = matter(raw);
   const row: Record<string, unknown> = { ...data, content: content.trim() };
-  // Map "body" field to "content" if present (Decap convention)
   if ("body" in row) {
     row.content = row.body;
     delete row.body;
@@ -50,41 +57,28 @@ function frontmatterToRow(raw: string): Record<string, unknown> {
   return row;
 }
 
-async function triggerRebuild() {
-  const hookUrl = process.env.NETLIFY_BUILD_HOOK_URL;
-  if (hookUrl) {
-    try {
-      await fetch(hookUrl, { method: "POST" });
-    } catch {
-      // Fire and forget — don't fail the request if rebuild trigger fails
-    }
-  }
-}
+// ── Handlers ──────────────────────────────────────────────────────────
 
 async function handleEntriesByFolder(params: {
   folder: string;
   extension: string;
 }) {
   const { folder } = params;
-  if (!ALLOWED_TABLES.includes(folder)) {
-    return [];
-  }
+  if (!ALLOWED_TABLES.includes(folder)) return [];
+
   const supabase = getSupabase();
   const { data, error } = await supabase.from(folder).select("*");
   if (error) throw error;
 
-  return (data || []).map((row) => ({
-    file: { path: `${folder}/${row.slug}.md`, label: row.title },
-    data: rowToFrontmatter(row, folder),
-  }));
+  return (data || []).map((row) => rowToFileData(row, folder));
 }
 
 async function handleGetEntry(params: { path: string }) {
   const { table, slug } = parsePathInfo(params.path);
-  console.log("getEntry:", table, slug);
   if (!ALLOWED_TABLES.includes(table)) {
     throw new Error(`Unknown collection: ${table}`);
   }
+
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from(table)
@@ -93,35 +87,24 @@ async function handleGetEntry(params: { path: string }) {
     .maybeSingle();
 
   if (error) throw error;
+  if (!data) throw new Error(`Entry not found: ${table}/${slug}`);
 
-  // If entry doesn't exist yet, return an empty template
-  if (!data) {
-    console.log("Entry not found, returning empty template for:", table, slug);
-    const emptyRow: Record<string, unknown> = {
-      slug,
-      title: slug,
-      summary: "",
-      content: "",
-      draft: false,
-    };
-    return {
-      file: { path: `${table}/${slug}.md`, label: slug },
-      data: matter.stringify("", emptyRow),
-    };
-  }
-
-  return {
-    file: { path: `${table}/${slug}.md`, label: data.title },
-    data: rowToFrontmatter(data, table),
-  };
+  return rowToFileData(data, table);
 }
 
 async function handleEntriesByFiles(params: {
   files: Array<{ path: string; label: string }>;
 }) {
-  const results = await Promise.all(
-    params.files.map((file) => handleGetEntry({ path: file.path }))
-  );
+  // Fetch all requested entries, skip any that don't exist
+  const results = [];
+  for (const file of params.files) {
+    try {
+      const entry = await handleGetEntry({ path: file.path });
+      results.push(entry);
+    } catch {
+      // Skip missing entries silently
+    }
+  }
   return results;
 }
 
@@ -138,10 +121,7 @@ async function handlePersistEntry(params: {
     }
 
     const row = frontmatterToRow(dataFile.raw);
-    // Ensure slug is set from the path if not in frontmatter
-    if (!row.slug) {
-      row.slug = slug;
-    }
+    if (!row.slug) row.slug = slug;
 
     const { error } = await supabase
       .from(table)
@@ -150,7 +130,12 @@ async function handlePersistEntry(params: {
     if (error) throw error;
   }
 
-  await triggerRebuild();
+  // Trigger rebuild in background, don't block response
+  const hookUrl = process.env.NETLIFY_BUILD_HOOK_URL;
+  if (hookUrl) {
+    fetch(hookUrl, { method: "POST" }).catch(() => {});
+  }
+
   return { message: "ok" };
 }
 
@@ -169,73 +154,21 @@ async function handleDeleteFiles(params: { paths: string[] }) {
     if (error) throw error;
   }
 
-  await triggerRebuild();
   return { message: "ok" };
 }
 
-async function handlePersistMedia(params: Record<string, unknown>) {
-  console.log("persistMedia params keys:", Object.keys(params || {}));
-
-  // Decap proxy sends: { asset: { path, content, encoding } }
-  const asset = (params?.asset || params) as {
-    path?: string;
-    content?: string;
-    encoding?: string;
-  };
-
-  if (!asset?.path || !asset?.content) {
-    console.log("persistMedia full params:", JSON.stringify(params).slice(0, 500));
-    // Return a stub so Decap doesn't crash — media just won't be stored
-    const name = asset?.path || "unknown";
-    return {
-      asset: { id: name, name, size: 0, path: name, url: "" },
-    };
-  }
-
-  const supabase = getSupabase();
-
-  // Decode the base64 content
-  const encoding = (asset.encoding || "base64") as BufferEncoding;
-  const buffer = Buffer.from(asset.content, encoding);
-  const fileName = asset.path.replace(/^\/?(public\/)?uploads\//, "");
-  const storagePath = `uploads/${fileName}`;
-
-  // Upload to Supabase Storage (bucket: "media")
-  const { error } = await supabase.storage
-    .from("media")
-    .upload(storagePath, buffer, { upsert: true });
-
-  if (error) {
-    console.error("Storage upload error:", error);
-    throw error;
-  }
-
-  // Get the public URL
-  const { data: urlData } = supabase.storage
-    .from("media")
-    .getPublicUrl(storagePath);
-
-  // Decap CMS expects { asset: { ... } }
-  return {
-    asset: {
-      id: storagePath,
-      name: fileName,
-      size: buffer.length,
-      path: `/uploads/${fileName}`,
-      url: urlData.publicUrl,
-    },
-  };
-}
+// ── Auth ──────────────────────────────────────────────────────────────
 
 function checkAuth(request: Request): boolean {
   const adminPassword = process.env.DECAP_ADMIN_PASSWORD;
-  if (!adminPassword) return true; // No password set = no auth required
+  if (!adminPassword) return true;
   const token = request.headers.get("X-Admin-Token") || "";
   return token === adminPassword;
 }
 
+// ── Main handler ──────────────────────────────────────────────────────
+
 export default async function handler(request: Request) {
-  // Only accept POST
   if (request.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
@@ -243,7 +176,6 @@ export default async function handler(request: Request) {
     });
   }
 
-  // Check authentication
   if (!checkAuth(request)) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
@@ -256,9 +188,7 @@ export default async function handler(request: Request) {
     const body = await request.json();
     action = body.action;
     const params = body.params;
-    console.log("Action:", action, "Params keys:", Object.keys(params || {}));
 
-    // Auth check endpoint — just return OK if we got this far
     if (action === "auth_check") {
       return new Response(JSON.stringify({ ok: true }), {
         status: 200,
@@ -291,7 +221,7 @@ export default async function handler(request: Request) {
         result = { id: "", content: "", encoding: "raw", path: "", name: "" };
         break;
       case "persistMedia":
-        result = await handlePersistMedia(params);
+        result = { asset: { id: "", name: "", size: 0, path: "", url: "" } };
         break;
       default:
         return new Response(
@@ -305,7 +235,6 @@ export default async function handler(request: Request) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err: unknown) {
-    // Always expose the real error — never hide behind "Internal server error"
     let message = "Unknown error";
     if (err instanceof Error) {
       message = err.message;
@@ -314,7 +243,7 @@ export default async function handler(request: Request) {
     } else if (typeof err === "string") {
       message = err;
     }
-    console.error("Decap proxy error:", action || "unknown", message, err);
+    console.error("Decap proxy error:", action, message);
     return new Response(JSON.stringify({ error: `API_ERROR: ${message}` }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
