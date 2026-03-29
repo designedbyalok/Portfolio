@@ -47,7 +47,7 @@ const renderedContent = marked(content);
       </header>
 
       <div class="hero-image">
-        <img src={image} alt={title} />
+        <img src={image} alt={title} decoding="async" />
       </div>
 
       <div class="content" set:html={renderedContent} />
@@ -262,18 +262,33 @@ const renderedContent = marked(content);
       font-size: 0.8rem;
       gap: 0.25rem;
       padding: 0.35rem 0.4rem;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .breadcrumb::-webkit-scrollbar {
+      display: none;
     }
     .crumb {
       padding: 0.25rem 0.6rem;
     }
     .crumb.current {
-      max-width: 130px;
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .summary {
       font-size: 1rem;
     }
     .content {
       font-size: 1rem;
+    }
+    .content :global(pre) {
+      font-size: 0.85rem;
+    }
+    .content :global(img) {
+      border-radius: 0.5rem;
     }
     .hero-image {
       border-radius: 8px;

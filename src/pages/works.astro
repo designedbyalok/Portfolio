@@ -22,7 +22,7 @@ const projects = await getWorks();
         {projects.map((project) => (
           <a href={`/works/${project.slug}`} class="project-card">
             <div class="project-image">
-              <img src={project.image} alt={project.title} loading="lazy" />
+              <img src={project.image} alt={project.title} loading="lazy" decoding="async" />
             </div>
             <div class="project-info">
               <div class="project-tags">
@@ -55,6 +55,8 @@ const projects = await getWorks();
     position: sticky;
     top: 0;
     z-index: 50;
+    background: var(--bg-gradient);
+    padding-bottom: 0.5rem;
   }
 
   .works-container {
