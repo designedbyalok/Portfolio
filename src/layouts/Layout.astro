@@ -42,17 +42,19 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<meta name="description" content="Alok Kumar – Product Designer at FoldHealth, Pune. Simplifying Digital HealthCare for all end-users." />
-		<meta name="theme-color" content="#121212" />
+		<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+		<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 		<script is:inline>
 		(function(){
-			var COLORS = { dark: '#121212', light: '#ffffff' };
+			var COLORS = { dark: '#000000', light: '#f9fafb' };
 
 			function setTheme(t) {
 				document.documentElement.dataset.theme = t;
-				var meta = document.querySelector('meta[name="theme-color"]');
-				if (meta) meta.setAttribute('content', COLORS[t] || COLORS.dark);
+				// Update both theme-color meta tags
+				var metas = document.querySelectorAll('meta[name="theme-color"]');
+				metas.forEach(function(meta) { meta.setAttribute('content', COLORS[t] || COLORS.dark); });
 			}
 
 			var t = localStorage.getItem('theme');
@@ -256,24 +258,16 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 
 	a { color: inherit; text-decoration: none; }
 
-	::view-transition-old(root),
+	/* Instant page swap — no cross-fade animation */
+	::view-transition-old(root) {
+		animation: none !important;
+		display: none !important;
+	}
 	::view-transition-new(root) {
-		overflow: visible;
-		height: auto;
-		animation-duration: 0.2s;
+		animation: none !important;
 	}
-
-	/* Prevent layout flash during View Transitions */
 	::view-transition-group(root) {
-		animation-duration: 0.2s;
-	}
-
-	/* Prevent FOUC — hide until theme is applied */
-	html:not([data-theme]) body {
-		visibility: hidden;
-	}
-	html[data-theme] body {
-		visibility: visible;
+		animation-duration: 0s !important;
 	}
 
 	::selection {

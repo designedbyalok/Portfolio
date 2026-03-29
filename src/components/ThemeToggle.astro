@@ -76,8 +76,9 @@
       var next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.dataset.theme = next;
       localStorage.setItem('theme', next);
-      var meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', next === 'light' ? '#ffffff' : '#121212');
+      var metas = document.querySelectorAll('meta[name="theme-color"]');
+      var color = next === 'light' ? '#f9fafb' : '#000000';
+      metas.forEach(function(m) { m.setAttribute('content', color); });
     });
   }
 </script>
