@@ -227,11 +227,26 @@ async function handlePersistMedia(params: Record<string, unknown>) {
   };
 }
 
+function checkAuth(request: Request): boolean {
+  const adminPassword = process.env.DECAP_ADMIN_PASSWORD;
+  if (!adminPassword) return true; // No password set = no auth required
+  const token = request.headers.get("X-Admin-Token") || "";
+  return token === adminPassword;
+}
+
 export default async function handler(request: Request) {
   // Only accept POST
   if (request.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Check authentication
+  if (!checkAuth(request)) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -242,6 +257,14 @@ export default async function handler(request: Request) {
     action = body.action;
     const params = body.params;
     console.log("Action:", action, "Params keys:", Object.keys(params || {}));
+
+    // Auth check endpoint — just return OK if we got this far
+    if (action === "auth_check") {
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     let result: unknown;
 
