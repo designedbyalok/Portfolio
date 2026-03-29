@@ -81,6 +81,7 @@ async function handleEntriesByFolder(params: {
 
 async function handleGetEntry(params: { path: string }) {
   const { table, slug } = parsePathInfo(params.path);
+  console.log("getEntry:", table, slug);
   if (!ALLOWED_TABLES.includes(table)) {
     throw new Error(`Unknown collection: ${table}`);
   }
@@ -89,8 +90,25 @@ async function handleGetEntry(params: { path: string }) {
     .from(table)
     .select("*")
     .eq("slug", slug)
-    .single();
+    .maybeSingle();
+
   if (error) throw error;
+
+  // If entry doesn't exist yet, return an empty template
+  if (!data) {
+    console.log("Entry not found, returning empty template for:", table, slug);
+    const emptyRow: Record<string, unknown> = {
+      slug,
+      title: slug,
+      summary: "",
+      content: "",
+      draft: false,
+    };
+    return {
+      file: { path: `${table}/${slug}.md`, label: slug },
+      data: matter.stringify("", emptyRow),
+    };
+  }
 
   return {
     file: { path: `${table}/${slug}.md`, label: data.title },
