@@ -1,7 +1,6 @@
 ---
 import Footer from "../components/Footer.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
-import { ViewTransitions } from 'astro:transitions';
 
 export interface Props {
 	title: string;
@@ -63,16 +62,6 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 
 			if (!window.__themeSwapBound) {
 				window.__themeSwapBound = true;
-
-				function applyTheme() {
-					var th = localStorage.getItem('theme');
-					if (!th) th = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-					setTheme(th);
-				}
-
-				document.addEventListener('astro:beforeload', applyTheme);
-				document.addEventListener('astro:load', applyTheme);
-
 				window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(e) {
 					if (!localStorage.getItem('theme')) {
 						setTheme(e.matches ? 'light' : 'dark');
@@ -81,7 +70,6 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 			}
 		})();
 		</script>
-		<ViewTransitions />
 	</head>
 	<body class={bodyClass}>
 		<slot />
@@ -257,18 +245,6 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 	h2 { font-size: var(--font-size-lg); }
 
 	a { color: inherit; text-decoration: none; }
-
-	/* Instant page swap — no cross-fade animation */
-	::view-transition-old(root) {
-		animation: none !important;
-		display: none !important;
-	}
-	::view-transition-new(root) {
-		animation: none !important;
-	}
-	::view-transition-group(root) {
-		animation-duration: 0s !important;
-	}
 
 	::selection {
 		background: var(--selection-bg);
