@@ -1,6 +1,7 @@
 ---
 import Footer from "../components/Footer.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
+import { ViewTransitions } from 'astro:transitions';
 
 export interface Props {
 	title: string;
@@ -36,7 +37,6 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 		<link rel="preload" href="/new_font/Roobert-Regular.woff2" as="font" type="font/woff2" crossorigin />
 		<link rel="preload" href="/new_font/Roobert-Medium.woff2" as="font" type="font/woff2" crossorigin />
 		<link rel="preload" href="/new_font/Roobert-Bold.woff2" as="font" type="font/woff2" crossorigin />
-		<!-- Prefetch key pages for instant navigation -->
 		<link rel="prefetch" href="/" />
 		<link rel="prefetch" href="/blog" />
 		<link rel="prefetch" href="/works" />
@@ -64,6 +64,17 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 
 			if (!window.__themeSwapBound) {
 				window.__themeSwapBound = true;
+
+				function applyTheme() {
+					var th = localStorage.getItem('theme');
+					if (!th) th = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+					setTheme(th);
+				}
+
+				// Re-apply after View Transition DOM swap (before paint)
+				document.addEventListener('astro:after-swap', applyTheme);
+				document.addEventListener('astro:page-load', applyTheme);
+
 				window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(e) {
 					if (!localStorage.getItem('theme')) {
 						setTheme(e.matches ? 'light' : 'dark');
@@ -73,7 +84,7 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 		})();
 		</script>
 		<script is:inline>
-		// Prefetch links on hover for near-instant navigation
+		// Prefetch links on hover
 		if (!window.__prefetchBound) {
 			window.__prefetchBound = true;
 			var prefetched = {};
@@ -90,6 +101,7 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 			}, true);
 		}
 		</script>
+		<ViewTransitions />
 	</head>
 	<body class={bodyClass}>
 		<slot />
@@ -264,6 +276,28 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 	h2 { font-size: var(--font-size-lg); }
 
 	a { color: inherit; text-decoration: none; }
+
+	/*
+	 * View Transitions: sequential fade through background color.
+	 * Old page fades OUT first → background visible → new page fades IN.
+	 * Pages never overlap = no layout break.
+	 */
+	@keyframes vt-fade-out {
+		from { opacity: 1; }
+		to { opacity: 0; }
+	}
+	@keyframes vt-fade-in {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+	::view-transition-old(root) {
+		animation: vt-fade-out 80ms ease-out both;
+		z-index: 1;
+	}
+	::view-transition-new(root) {
+		animation: vt-fade-in 80ms ease-in 80ms both;
+		z-index: 0;
+	}
 
 	::selection {
 		background: var(--selection-bg);
