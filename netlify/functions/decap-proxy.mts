@@ -165,6 +165,7 @@ async function handlePersistEntry(params: {
   }
 
   await triggerRebuild();
+  return { message: "ok" };
 }
 
 async function handleDeleteFiles(params: { paths: string[] }) {
@@ -183,6 +184,7 @@ async function handleDeleteFiles(params: { paths: string[] }) {
   }
 
   await triggerRebuild();
+  return { message: "ok" };
 }
 
 async function handlePersistMedia(params: Record<string, unknown>) {
