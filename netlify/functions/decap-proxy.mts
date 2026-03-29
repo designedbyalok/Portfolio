@@ -4,51 +4,19 @@ import matter from "gray-matter";
 const ALLOWED_TABLES = ["blog_posts", "works"];
 
 function getSupabase() {
-  // Log ALL env var names that contain "SUPA" for debugging
-  const allKeys = Object.keys(process.env).filter(
-    (k) => k.includes("SUPA") || k.includes("supa")
-  );
-  console.log("ENV KEYS matching SUPA*:", allKeys);
-  console.log(
-    "SUPABASE_URL present:",
-    !!process.env.SUPABASE_URL,
-    "length:",
-    (process.env.SUPABASE_URL || "").length
-  );
-  console.log(
-    "PUBLIC_SUPABASE_URL present:",
-    !!process.env.PUBLIC_SUPABASE_URL,
-    "length:",
-    (process.env.PUBLIC_SUPABASE_URL || "").length
-  );
-  console.log(
-    "SUPABASE_SERVICE_ROLE_KEY present:",
-    !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    "length:",
-    (process.env.SUPABASE_SERVICE_ROLE_KEY || "").length
-  );
-
   const url =
     process.env.SUPABASE_URL ||
-    process.env.PUBLIC_SUPABASE_URL ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    process.env.VITE_SUPABASE_URL;
+    process.env.PUBLIC_SUPABASE_URL;
 
   const key =
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.service_role ||
-    process.env.SUPABASE_SERVICE_KEY ||
-    process.env.SUPABASE_SECRET_KEY;
+    process.env.service_role;
 
   if (!url || !key) {
     const missing = [];
     if (!url) missing.push("SUPABASE_URL");
     if (!key) missing.push("SUPABASE_SERVICE_ROLE_KEY");
-    // Include ALL env var names (not values) in the error for debugging
-    const envNames = Object.keys(process.env).sort().join(", ");
-    throw new Error(
-      `Missing env vars: ${missing.join(", ")}. Available env names: [${envNames}]`
-    );
+    throw new Error(`Missing env vars: ${missing.join(", ")}`);
   }
   return createClient(url, key);
 }
@@ -250,9 +218,12 @@ export default async function handler(request: Request) {
     });
   }
 
+  let action = "unknown";
   try {
     const body = await request.json();
-    const { action, params } = body;
+    action = body.action;
+    const params = body.params;
+    console.log("Action:", action, "Params keys:", Object.keys(params || {}));
 
     let result: unknown;
 
@@ -293,9 +264,17 @@ export default async function handler(request: Request) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Internal server error";
-    console.error("Decap proxy error:", err);
-    return new Response(JSON.stringify({ error: message }), {
+    // Always expose the real error — never hide behind "Internal server error"
+    let message = "Unknown error";
+    if (err instanceof Error) {
+      message = err.message;
+    } else if (typeof err === "object" && err !== null) {
+      message = JSON.stringify(err);
+    } else if (typeof err === "string") {
+      message = err;
+    }
+    console.error("Decap proxy error:", action || "unknown", message, err);
+    return new Response(JSON.stringify({ error: `API_ERROR: ${message}` }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
