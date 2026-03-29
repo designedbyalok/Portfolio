@@ -278,25 +278,19 @@ const { title, bodyClass = '', hideFooter = false } = Astro.props as Props;
 	a { color: inherit; text-decoration: none; }
 
 	/*
-	 * View Transitions: sequential fade through background color.
-	 * Old page fades OUT first → background visible → new page fades IN.
-	 * Pages never overlap = no layout break.
+	 * View Transitions: new page fades in ON TOP of old page.
+	 * Old page stays visible underneath — never a blank frame.
 	 */
-	@keyframes vt-fade-out {
-		from { opacity: 1; }
-		to { opacity: 0; }
-	}
 	@keyframes vt-fade-in {
 		from { opacity: 0; }
-		to { opacity: 1; }
 	}
 	::view-transition-old(root) {
-		animation: vt-fade-out 80ms ease-out both;
-		z-index: 1;
+		animation: none;
+		z-index: 0;
 	}
 	::view-transition-new(root) {
-		animation: vt-fade-in 80ms ease-in 80ms both;
-		z-index: 0;
+		animation: vt-fade-in 120ms ease;
+		z-index: 1;
 	}
 
 	::selection {
