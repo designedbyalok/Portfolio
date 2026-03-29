@@ -80,13 +80,30 @@ async function handleGetEntry(params: { path: string }) {
   }
 
   const supabase = getSupabase();
-  const { data, error } = await supabase
+
+  // Try exact slug first
+  let { data, error } = await supabase
     .from(table)
     .select("*")
     .eq("slug", slug)
     .maybeSingle();
 
   if (error) throw error;
+
+  // If not found, try stripping Decap's auto-appended "-N" suffix
+  if (!data) {
+    const baseSlug = slug.replace(/-\d+$/, "");
+    if (baseSlug !== slug) {
+      const result = await supabase
+        .from(table)
+        .select("*")
+        .eq("slug", baseSlug)
+        .maybeSingle();
+      if (result.error) throw result.error;
+      data = result.data;
+    }
+  }
+
   if (!data) throw new Error(`Entry not found: ${table}/${slug}`);
 
   return rowToFileData(data, table);
