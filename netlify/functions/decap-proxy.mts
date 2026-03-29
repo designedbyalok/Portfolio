@@ -3,24 +3,51 @@ import matter from "gray-matter";
 
 const ALLOWED_TABLES = ["blog_posts", "works"];
 
-function getEnv(name: string): string | undefined {
-  // Netlify Functions v2: try Netlify.env first, fall back to process.env
-  try {
-    // @ts-ignore — Netlify global available at runtime
-    return globalThis.Netlify?.env?.get(name) || process.env[name];
-  } catch {
-    return process.env[name];
-  }
-}
-
 function getSupabase() {
-  const url = getEnv("SUPABASE_URL") || getEnv("PUBLIC_SUPABASE_URL");
-  const key = getEnv("SUPABASE_SERVICE_ROLE_KEY");
+  // Log ALL env var names that contain "SUPA" for debugging
+  const allKeys = Object.keys(process.env).filter(
+    (k) => k.includes("SUPA") || k.includes("supa")
+  );
+  console.log("ENV KEYS matching SUPA*:", allKeys);
+  console.log(
+    "SUPABASE_URL present:",
+    !!process.env.SUPABASE_URL,
+    "length:",
+    (process.env.SUPABASE_URL || "").length
+  );
+  console.log(
+    "PUBLIC_SUPABASE_URL present:",
+    !!process.env.PUBLIC_SUPABASE_URL,
+    "length:",
+    (process.env.PUBLIC_SUPABASE_URL || "").length
+  );
+  console.log(
+    "SUPABASE_SERVICE_ROLE_KEY present:",
+    !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    "length:",
+    (process.env.SUPABASE_SERVICE_ROLE_KEY || "").length
+  );
+
+  const url =
+    process.env.SUPABASE_URL ||
+    process.env.PUBLIC_SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.VITE_SUPABASE_URL;
+
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SERVICE_KEY ||
+    process.env.SUPABASE_SECRET_KEY;
+
   if (!url || !key) {
     const missing = [];
     if (!url) missing.push("SUPABASE_URL");
     if (!key) missing.push("SUPABASE_SERVICE_ROLE_KEY");
-    throw new Error(`Missing env vars: ${missing.join(", ")}. Check Netlify Dashboard > Site settings > Environment variables. Ensure scope includes "Functions".`);
+    // Include ALL env var names (not values) in the error for debugging
+    const envNames = Object.keys(process.env).sort().join(", ");
+    throw new Error(
+      `Missing env vars: ${missing.join(", ")}. Available env names: [${envNames}]`
+    );
   }
   return createClient(url, key);
 }
