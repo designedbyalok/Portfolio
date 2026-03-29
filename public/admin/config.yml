@@ -3,8 +3,10 @@ backend:
   proxy_url: /.netlify/functions/decap-proxy
   branch: main
 
-media_folder: "public/uploads"
-public_folder: "/uploads"
+media_library:
+  name: ""
+  config:
+    multiple: false
 
 collections:
   - name: "blog_posts"
