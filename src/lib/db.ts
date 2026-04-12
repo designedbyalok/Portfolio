@@ -29,6 +29,7 @@ export type Work = {
 };
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from('blog_posts')
     .select('*')
@@ -39,7 +40,8 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   return data as BlogPost[];
 }
 
-export async function getBlogPost(slug: string): Promise<BlogPost> {
+export async function getBlogPost(slug: string): Promise<BlogPost | null> {
+  if (!supabase) return null;
   const { data, error } = await supabase
     .from('blog_posts')
     .select('*')
@@ -52,6 +54,7 @@ export async function getBlogPost(slug: string): Promise<BlogPost> {
 }
 
 export async function getWorks(): Promise<Work[]> {
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from('works')
     .select('*')
@@ -62,7 +65,8 @@ export async function getWorks(): Promise<Work[]> {
   return data as Work[];
 }
 
-export async function getWork(slug: string): Promise<Work> {
+export async function getWork(slug: string): Promise<Work | null> {
+  if (!supabase) return null;
   const { data, error } = await supabase
     .from('works')
     .select('*')
